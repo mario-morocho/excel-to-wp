@@ -35,16 +35,14 @@ function show_page_importer() { ?>
     <div class="wrap" >
         <h1 class="wp-heading-inline">Importar datos a WordPress</h1>
     <?php
-    session_start();
     //import_to_wp([]);die;
     if($_POST['data']){
         // 4. Carga la información desde el archivo CSV
         import_to_wp($_POST['data']);
     }
-    else if($_SESSION['tags']){
+    else if($_POST['tags']){
         // 3. Muestra interfaz para emparejar los campos a ser cargados
-        $tags = $_SESSION['tags'];
-        unset($_SESSION['tags']);
+        $tags = $_POST['tags'];
         import_config_view($tags);
     }
     else if($file = $_FILES['csv_file']){
@@ -91,10 +89,37 @@ function process_csv($file){
                 fclose($gestor);
             }
         }
-        session_start();
-        // Set session variables
-        $_SESSION["tags"] = $tags;
-        wp_redirect(admin_url('/admin.php?page=ykimporter-import'));
+        
+        // Show Etiquetas
+        ?>
+<h2>Etiquetas de archivo CSV</h2>
+<p>Fila de etiquetas para configurar carga a campos personalizados.</p>
+<form action="" method="POST">
+    <table class="wp-list-table widefat fixed striped pages">
+        <thead>
+            <tr>
+                <th>Etiquetas</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <ul>
+                        <?php foreach ($tags as $k => $t): ?>
+                        <li>
+                            <?php echo $t; ?>
+                            <input type="hidden" name="tags[<?php echo $k; ?>]" value="<?php echo $t; ?>" />
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </td>
+                <td><input class="button button-primary button-large" type="submit" value="Continuar" /></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+        <?php
     }
 }
 
